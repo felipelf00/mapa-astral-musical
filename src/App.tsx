@@ -3,6 +3,7 @@ import "./App.css";
 
 function App() {
   const [chartData, setChartData] = useState({});
+  const [notes, setNotes] = useState<Array<number>>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +35,30 @@ function App() {
           options
         );
         const data = await response.json();
+
         setChartData(data);
+
+        const planetData = data.output[0];
+        const planets: { [key: string]: string } = {};
+        // const noteArray: Array<number> = [];
+
+        for (const planet in planetData) {
+          if (Object.prototype.hasOwnProperty.call(planetData, planet)) {
+            const currentSign = planetData[planet].current_sign;
+            const planetName = planetData[planet].name;
+            planets[planetName] = currentSign;
+
+            if (!notes.includes(currentSign)) {
+              setNotes((prevNotes) => [...prevNotes, currentSign]);
+            }
+          }
+        }
+
+        //sort notes
+        setNotes((prevNotes) => [...prevNotes].sort((a, b) => a - b));
+
+        console.log("Planets: " + planets);
+        console.log("notes: " + notes);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -42,8 +66,6 @@ function App() {
 
     fetchData();
   }, []);
-
-  console.log(chartData);
 
   return (
     <>
