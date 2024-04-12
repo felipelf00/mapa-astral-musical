@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { KeyboardSynth } from "./tone.tsx";
 
 function App() {
   const [chartData, setChartData] = useState({});
@@ -70,7 +71,7 @@ function App() {
   return (
     <>
       <h1>Hello world</h1>
-      <p>{JSON.stringify(chartData)}</p>
+      <KeyboardSynth />
     </>
   );
 }
