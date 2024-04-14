@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { KeyboardSynth } from "./tone.tsx";
-import { ChartForm } from "./ChartForm.tsx";
+import { KeyboardSynth } from "./components/Tone.tsx";
+import { ChartForm } from "./components/ChartForm.tsx";
 import { ChartFormData } from "./types.ts";
+import { Header } from "./components/Header.tsx";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   const [formData, setFormData] = useState<ChartFormData>({});
@@ -86,8 +88,20 @@ function App() {
 
   return (
     <>
-      <ChartForm onSubmit={handleFormSubmit} initialValues={formData} />
-      <KeyboardSynth notes={notes} />
+      <Header />
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ChartForm onSubmit={handleFormSubmit} initialValues={formData} />
+            }
+          />
+          <Route path="/play" element={<KeyboardSynth notes={notes} />} />
+        </Routes>
+      </Router>
+      {/* <ChartForm onSubmit={handleFormSubmit} initialValues={formData} /> */}
+      {/* <KeyboardSynth notes={notes} /> */}
     </>
   );
 }

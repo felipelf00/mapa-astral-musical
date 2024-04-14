@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "./components/ui/input";
-import { Label } from "./components/ui/label";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { useState } from "react";
-import { ChartFormData } from "./types";
+import { ChartFormData } from "../types";
+import { useNavigate } from "react-router-dom";
 
 // const formSchema = z.object({
 //   username: z.string().min(2).max(50),
@@ -40,6 +41,8 @@ export function ChartForm({
     initialValues.timezone
   );
 
+  const navigate = useNavigate();
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onSubmit({
@@ -52,6 +55,7 @@ export function ChartForm({
       longitude,
       timezone,
     });
+    navigate("/play");
   }
 
   return (
