@@ -1,57 +1,69 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as Tone from "tone";
+import { numsToNotes, setNotesToKeys } from "./lib/utils";
 
-const noteMapping: { [key: number]: string } = {
-  1: "C",
-  2: "C#",
-  3: "D",
-  4: "D#",
-  5: "E",
-  6: "F",
-  7: "F#",
-  8: "G",
-  9: "G#",
-  10: "A",
-  11: "A#",
-  12: "B",
-};
-
-const keys = ["a", "s", "d", "f", "g", "h", "j", "k", "q", "w", "e", "r"];
-const keyMap: { [key: string]: string } = {};
-
-// set notes to keys
-function setNotesToKeys(notes: number[]) {
-  //map each note to keys on the keyboard
-  let octave = 4;
-
-  for (let i = 0; i < notes.length; i++) {
-    keyMap[keys[i]] = noteMapping[notes[i]] + octave.toString();
-  }
+interface KeyboardProps {
+  notes: number[];
 }
 
-const testNotes = [1, 2, 4, 5, 7, 10, 12];
-setNotesToKeys(testNotes);
+export function KeyboardSynth({ notes }: KeyboardProps) {
+  const synth = new Tone.PolySynth().toDestination();
+  const [keyMap, setKeyMap] = useState<{ [key: string]: string }>({});
 
-console.log(keyMap);
-
-export function KeyboardSynth() {
-  const synth = new Tone.Synth().toDestination();
+  console.log("keyMap at start:", keyMap);
 
   useEffect(() => {
-    const playNote = (key: string) => {
-      const note = keyMap[key.toLowerCase()];
-      if (note) {
-        synth.triggerAttackRelease(note, "8n");
-      }
-    };
+    const newKeyMap = setNotesToKeys(notes);
+    setKeyMap(newKeyMap);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      playNote(event.key);
+      playNote(event.key, newKeyMap);
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      console.log("Key released:", event.key);
+      stopNote(event.key, newKeyMap);
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    window.addEventListener("keyup", handleKeyUp);
 
-  return <div>Play</div>;
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes]);
+
+  const playNote = (key: string, keyMap: { [key: string]: string }) => {
+    console.log("keyMap at playNote:", keyMap);
+
+    const note = keyMap[key.toLowerCase()];
+    if (note) {
+      // Start the new note
+      synth.triggerAttack(note);
+      // Add the note to the array of playing notes
+      console.log("note: " + note);
+    }
+  };
+
+  const stopNote = (key: string, keyMap: { [key: string]: string }) => {
+    const note = keyMap[key.toLowerCase()];
+    console.log("ENTERED STOP. note = " + note);
+    if (note) {
+      console.log("ENTERED IF AT STOP. note = " + note);
+      // Stop the note
+      synth.triggerRelease(note);
+    } else {
+      console.log("invalid note: " + note);
+    }
+  };
+
+  return (
+    <div>
+      {numsToNotes(notes).map((note) => {
+        return `${note} `;
+      })}
+    </div>
+  );
 }

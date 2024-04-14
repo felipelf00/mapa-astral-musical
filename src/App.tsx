@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { KeyboardSynth } from "./tone.tsx";
+import { ChartForm } from "./ChartForm.tsx";
+import { ChartFormData } from "./types.ts";
 
 function App() {
-  const [chartData, setChartData] = useState({});
+  const [formData, setFormData] = useState<ChartFormData>({});
   const [notes, setNotes] = useState<Array<number>>([]);
 
   useEffect(() => {
@@ -16,15 +18,14 @@ function App() {
             "x-api-key": "WiTh2w5Nze2izZcgrvgqR41vGmjlypjP7PsDHnUk", // esconder
           },
           body: JSON.stringify({
-            year: 2022,
-            month: 8,
-            date: 11,
-            hours: 6,
-            minutes: 0,
-            seconds: 0,
-            latitude: 17.38333,
-            longitude: 78.4666,
-            timezone: 5.5,
+            year: formData.year,
+            month: formData.month,
+            date: formData.date,
+            hours: formData.hours,
+            minutes: formData.minutes,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            timezone: formData.timezone,
             settings: {
               observation_point: "topocentric",
               ayanamsha: "lahiri",
@@ -37,11 +38,11 @@ function App() {
         );
         const data = await response.json();
 
-        setChartData(data);
+        // setChartData(data);
 
         const planetData = data.output[0];
         const planets: { [key: string]: string } = {};
-        // const noteArray: Array<number> = [];
+        const newNotes: number[] = [];
 
         for (const planet in planetData) {
           if (Object.prototype.hasOwnProperty.call(planetData, planet)) {
@@ -49,29 +50,44 @@ function App() {
             const planetName = planetData[planet].name;
             planets[planetName] = currentSign;
 
-            if (!notes.includes(currentSign)) {
-              setNotes((prevNotes) => [...prevNotes, currentSign]);
+            if (
+              currentSign !== undefined &&
+              !notes.includes(currentSign) &&
+              !newNotes.includes(currentSign)
+            ) {
+              newNotes.push(currentSign);
             }
           }
         }
 
         //sort notes
-        setNotes((prevNotes) => [...prevNotes].sort((a, b) => a - b));
+        newNotes.sort((a, b) => a - b);
 
-        console.log("Planets: " + planets);
+        setNotes(newNotes);
+
+        console.log("new notes: " + newNotes);
         console.log("notes: " + notes);
+
+        // console.log("Planets: " + planets);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
     };
 
-    fetchData();
-  }, []);
+    if (Object.keys(formData).length > 0) {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
+
+  const handleFormSubmit = (data: ChartFormData) => {
+    setFormData(data);
+  };
 
   return (
     <>
-      <h1>Hello world</h1>
-      <KeyboardSynth />
+      <ChartForm onSubmit={handleFormSubmit} initialValues={formData} />
+      <KeyboardSynth notes={notes} />
     </>
   );
 }
