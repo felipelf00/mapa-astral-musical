@@ -8,7 +8,9 @@ interface KeyboardProps {
 
 export function KeyboardSynth({ notes }: KeyboardProps) {
   const synth = new Tone.PolySynth().toDestination();
-  const [keyMap, setKeyMap] = useState<{ [key: string]: string }>({});
+  const [keyMap, setKeyMap] = useState<{
+    [key: string]: { note: string; pressed: boolean };
+  }>({});
 
   console.log("keyMap at start:", keyMap);
 
@@ -35,25 +37,32 @@ export function KeyboardSynth({ notes }: KeyboardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notes]);
 
-  const playNote = (key: string, keyMap: { [key: string]: string }) => {
-    console.log("keyMap at playNote:", keyMap);
+  const playNote = (
+    key: string,
+    keyMap: { [key: string]: { note: string; pressed: boolean } }
+  ) => {
+    // console.log("keyMap at playNote:", keyMap);
 
-    const note = keyMap[key.toLowerCase()];
-    if (note) {
-      // Start the new note
+    const note = keyMap[key.toLowerCase()].note;
+    const isPressed = keyMap[key.toLowerCase()].pressed;
+    if (note && !isPressed) {
       synth.triggerAttack(note);
-      // Add the note to the array of playing notes
-      console.log("note: " + note);
+      keyMap[key.toLowerCase()].pressed = true;
+      // console.log("note: " + note);
     }
   };
 
-  const stopNote = (key: string, keyMap: { [key: string]: string }) => {
-    const note = keyMap[key.toLowerCase()];
+  const stopNote = (
+    key: string,
+    keyMap: { [key: string]: { note: string; pressed: boolean } }
+  ) => {
+    const note = keyMap[key.toLowerCase()].note;
     console.log("ENTERED STOP. note = " + note);
     if (note) {
       console.log("ENTERED IF AT STOP. note = " + note);
       // Stop the note
       synth.triggerRelease(note);
+      keyMap[key.toLowerCase()].pressed = false;
     } else {
       console.log("invalid note: " + note);
     }

@@ -48,17 +48,16 @@ const keys: string[] = [
   "o",
   "p",
 ];
-// export const keyMap: { [key: string]: string } = {};
 
 // set notes to keys
 export function setNotesToKeys(notes: number[]) {
-  const keyMap: { [key: string]: string } = {};
+  const keyMap: { [key: string]: { note: string; pressed: boolean } } = {};
   const noteArray = numsToNotes(notes);
 
   for (let i = 0; i < keys.length; i++) {
     const octave = 3 + Math.floor(i / notes.length);
-    // keyMap[keys[i]] = noteMapping[notes[i % notes.length]] + octave.toString();
-    keyMap[keys[i]] = noteArray[i % noteArray.length] + octave.toString();
+    const note = noteArray[i % noteArray.length] + octave.toString();
+    keyMap[keys[i]] = { note, pressed: false };
   }
 
   console.log("keyMap at setNotes...:", keyMap);
