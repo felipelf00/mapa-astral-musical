@@ -5,18 +5,6 @@ import { useState } from "react";
 import { ChartFormData } from "../types";
 import { useNavigate } from "react-router-dom";
 
-// const formSchema = z.object({
-//   username: z.string().min(2).max(50),
-//   year: z.number().int().min(0),
-//   month: z.number().int().min(1).max(12),
-//   date: z.number().int().min(1).max(31), // adicionar validação para diferentes meses
-//   hours: z.number().int(). min(0).max(23),
-//   minutes: z.number().int().min(0).max(59),
-//   latitude: z.number().min(-90).max(90),
-//   longitude: z.number().min(-180).max(180),
-//   timezone: z.number().min(-12).max(14), // verificar máximo da API
-// })
-
 export function ChartForm({
   onSubmit,
   initialValues = {},
@@ -24,36 +12,29 @@ export function ChartForm({
   onSubmit: (data: ChartFormData) => void;
   initialValues?: ChartFormData;
 }) {
-  const [year, setYear] = useState<number | undefined>(initialValues.year);
-  const [month, setMonth] = useState<number | undefined>(initialValues.month);
-  const [date, setDate] = useState<number | undefined>(initialValues.date);
-  const [hours, setHours] = useState<number | undefined>(initialValues.hours);
-  const [minutes, setMinutes] = useState<number | undefined>(
-    initialValues.minutes
-  );
-  const [latitude, setLatitude] = useState<number | undefined>(
-    initialValues.latitude
-  );
-  const [longitude, setLongitude] = useState<number | undefined>(
-    initialValues.longitude
-  );
-  const [timezone, setTimezone] = useState<number | undefined>(
-    initialValues.timezone
-  );
+  // Store as strings for controlled inputs
+  const [year, setYear] = useState(initialValues.year?.toString() ?? "1989");
+  const [month, setMonth] = useState(initialValues.month?.toString() ?? "8");
+  const [date, setDate] = useState(initialValues.date?.toString() ?? "25");
+  const [hours, setHours] = useState(initialValues.hours?.toString() ?? "17");
+  const [minutes, setMinutes] = useState(initialValues.minutes?.toString() ?? "13");
+  const [latitude, setLatitude] = useState(initialValues.latitude?.toString() ?? "25.2548");
+  const [longitude, setLongitude] = useState(initialValues.longitude?.toString() ?? "49.1615");
+  const [timezone, setTimezone] = useState(initialValues.timezone?.toString() ?? "3");
 
   const navigate = useNavigate();
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onSubmit({
-      year,
-      month,
-      date,
-      hours,
-      minutes,
-      latitude,
-      longitude,
-      timezone,
+      year: year ? parseInt(year) : undefined,
+      month: month ? parseInt(month) : undefined,
+      date: date ? parseInt(date) : undefined,
+      hours: hours ? parseInt(hours) : undefined,
+      minutes: minutes ? parseInt(minutes) : undefined,
+      latitude: latitude ? parseInt(latitude) : undefined,
+      longitude: longitude ? parseInt(longitude) : undefined,
+      timezone: timezone ? parseInt(timezone) : undefined,
     });
     navigate("/play");
   }
@@ -65,8 +46,7 @@ export function ChartForm({
         <Input
           name="year"
           value={year}
-          onChange={(e) => setYear(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setYear(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -74,8 +54,7 @@ export function ChartForm({
         <Input
           name="month"
           value={month}
-          onChange={(e) => setMonth(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setMonth(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -83,8 +62,7 @@ export function ChartForm({
         <Input
           name="date"
           value={date}
-          onChange={(e) => setDate(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setDate(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -92,8 +70,7 @@ export function ChartForm({
         <Input
           name="hours"
           value={hours}
-          onChange={(e) => setHours(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setHours(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -101,8 +78,7 @@ export function ChartForm({
         <Input
           name="minutes"
           value={minutes}
-          onChange={(e) => setMinutes(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setMinutes(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -110,8 +86,7 @@ export function ChartForm({
         <Input
           name="latitude"
           value={latitude}
-          onChange={(e) => setLatitude(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setLatitude(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -119,8 +94,7 @@ export function ChartForm({
         <Input
           name="longitude"
           value={longitude}
-          onChange={(e) => setLongitude(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setLongitude(e.target.value)}
         />
       </div>
       <div className="grid grid-cols-2 items-center text-right gap-3">
@@ -128,8 +102,7 @@ export function ChartForm({
         <Input
           name="timezone"
           value={timezone}
-          onChange={(e) => setTimezone(parseInt(e.target.value))}
-          className=""
+          onChange={(e) => setTimezone(e.target.value)}
         />
       </div>
       <Button type="submit">Enviar</Button>

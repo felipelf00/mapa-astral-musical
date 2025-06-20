@@ -12,12 +12,15 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
+
+      console.log("Form data: ", formData);
+
       try {
         const options = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-api-key": "WiTh2w5Nze2izZcgrvgqR41vGmjlypjP7PsDHnUk", // esconder
+            "x-api-key": import.meta.env.VITE_API_KEY ?? '',
           },
           body: JSON.stringify({
             year: formData.year,
@@ -25,6 +28,7 @@ function App() {
             date: formData.date,
             hours: formData.hours,
             minutes: formData.minutes,
+            seconds: 0,
             latitude: formData.latitude,
             longitude: formData.longitude,
             timezone: formData.timezone,
@@ -34,11 +38,16 @@ function App() {
             },
           }),
         };
+
+        console.log("Request options: ", options);
+
         const response = await fetch(
           "https://json.freeastrologyapi.com/planets",
           options
         );
         const data = await response.json();
+
+        console.log("Data fetched: ", data);
 
         // setChartData(data);
 
@@ -84,6 +93,7 @@ function App() {
 
   const handleFormSubmit = (data: ChartFormData) => {
     setFormData(data);
+    console.log("Form submitted with data: ", data);
   };
 
   return (
