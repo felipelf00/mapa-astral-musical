@@ -6,5 +6,6 @@ export interface ChartFormData {
   minutes?: number;
   latitude?: number;
   longitude?: number;
+  location?: string;
   timezone?: number;
 }

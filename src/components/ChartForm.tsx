@@ -4,6 +4,9 @@ import { Label } from "./ui/label";
 import { useState } from "react";
 import { ChartFormData } from "../types";
 import { useNavigate } from "react-router-dom";
+// import { set } from "react-hook-form";
+import { DateTime } from "luxon";
+import tzLookup from "tz-lookup";
 
 export function ChartForm({
   onSubmit,
@@ -17,12 +20,67 @@ export function ChartForm({
   const [month, setMonth] = useState(initialValues.month?.toString() ?? "8");
   const [date, setDate] = useState(initialValues.date?.toString() ?? "25");
   const [hours, setHours] = useState(initialValues.hours?.toString() ?? "17");
-  const [minutes, setMinutes] = useState(initialValues.minutes?.toString() ?? "13");
-  const [latitude, setLatitude] = useState(initialValues.latitude?.toString() ?? "25.2548");
-  const [longitude, setLongitude] = useState(initialValues.longitude?.toString() ?? "49.1615");
-  const [timezone, setTimezone] = useState(initialValues.timezone?.toString() ?? "3");
+  const [minutes, setMinutes] = useState(
+    initialValues.minutes?.toString() ?? "13"
+  );
+  const [latitude, setLatitude] = useState(
+    initialValues.latitude?.toString() ?? "25.2548"
+  );
+  const [longitude, setLongitude] = useState(
+    initialValues.longitude?.toString() ?? "49.1615"
+  );
+  const [timezone, setTimezone] = useState(
+    initialValues.timezone?.toString() ?? "-3"
+  );
+
+  const [location, setLocation] = useState(
+    initialValues.location ?? "Curitiba, Brasil"
+  );
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   const navigate = useNavigate();
+
+  async function fetchCoordinates(query: string) {
+    if (!query) return;
+    setLoadingLocation(true);
+    setLocationError("");
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          query
+        )}&format=json&addressdetails=1&limit=1`,
+        {
+          headers: {
+            "User-Agent": "Mapa Astral Musical App felipelf00@gmail.com",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        setLatitude(lat);
+        setLongitude(lon);
+
+        const newTimezone = tzLookup(parseFloat(lat), parseFloat(lon)) 
+        const dt = DateTime.now().setZone(newTimezone)
+        const offsetInHours = dt.offset / 60
+
+        setTimezone(offsetInHours.toString());
+
+
+      } else {
+        setLocationError("Localização não encontrada. Tente novamente.");
+      }
+    } catch (error) {
+      setLocationError("Erro ao buscar localização.");
+    } finally {
+      setLoadingLocation(false);
+    }
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -81,6 +139,30 @@ export function ChartForm({
           onChange={(e) => setMinutes(e.target.value)}
         />
       </div>
+
+      <div className="grid grid-cols-2 items-center text-right gap-3">
+        <Label htmlFor="location">Localização</Label>
+        <Input
+          name="location"
+          placeholder="ex: Lisboa, Portugal"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          onBlur={() => fetchCoordinates(location)}
+        />
+      </div>
+      {loadingLocation && (
+        <p className="text-sm text-gray-500">Buscando localização...</p>
+      )}
+      {locationError && <p className="text-sm text-red-500">{locationError}</p>}
+      {/* <div className="grid grid-cols-2 items-center text-right gap-3">
+        <Label htmlFor="timezone">Fuso horário</Label>
+        <Input
+          name="timezone"
+          value={timezone}
+          onChange={(e) => setTimezone(e.target.value)}
+        />
+      </div> */}
+
       <div className="grid grid-cols-2 items-center text-right gap-3">
         <Label htmlFor="latitude">Latitude</Label>
         <Input
